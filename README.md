@@ -1,19 +1,26 @@
 INSTRUÇÕES DE EXECUÇÃO
 
-1. Pré-requisitos:
-   - Python 3 instalado
-   - Biblioteca Tkinter (geralmente incluída na instalação padrão do Python)
+Pré-requisitos:
+Python 3 instalado
+Biblioteca Tkinter (já inclusa na instalação padrão do Python)
 
-2. Execução:
-   - Execute o arquivo `tsp_app.py` usando o comando:
-     python tsp_app.py
+Execução:
+Execute o arquivo interface_pcv.py usando o comando: python interface_pcv.py
 
-3. Funcionalidades:
-   - Na janela principal, selecione "Métodos Básicos"
-   - Insira o tamanho do problema ou use o valor padrão
-   - Clique em "Gerar Problema" para criar uma instância do PCV
-   - Resultados serão exibidos na área de texto
-   - As opções de seleção de métodos estão desabilitadas nesta versão
-   - Use "Sobre o Sistema" para ver informações do projeto
+Funcionalidades:
+Acesse a janela principal e clique em "Métodos Básicos".
+Informe o tamanho do problema (número de cidades) ou utilize o botão "Usar Padrão (5)".
+Clique em "Gerar Problema" para criar uma matriz de distâncias aleatória.
+Após gerar o problema, selecione um dos métodos de otimização:
+- Subida de Encosta
+- Subida de Encosta Alterada (permite definir o número máximo de tentativas)
+- Têmpera Simulada
+Clique em "Executar Método" para iniciar a otimização.
+Acompanhe os resultados exibidos na área de texto, incluindo:
+- Solução inicial
+- Progresso das iterações
+- Solução final com a rota e a distância total
+Utilize o botão "Sobre o Sistema" na janela principal para visualizar informações sobre o projeto e os autores.
+
 
 Desenvolvido por: Izaque Nogueira e Vinicius Cardoso
