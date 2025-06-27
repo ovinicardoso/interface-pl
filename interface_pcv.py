@@ -5,521 +5,618 @@ import math
 import copy
 
 
-class MainApp:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Otimização de Rotas - PCV")
-        self.master.geometry("500x300")
-        self.master.minsize(400, 200)
+class AplicacaoPrincipal:
+    def __init__(self, mestre):
+        self.mestre = mestre
+        self.mestre.title("Otimização de Rotas - PCV")
+        self.mestre.geometry("500x300")
+        self.mestre.minsize(400, 200)
 
-        self.configure_grid()
-        self.create_widgets()
+        self.configurar_grade()
+        self.criar_widgets()
 
-    def configure_grid(self):
-        self.master.grid_rowconfigure(0, weight=1)
-        self.master.grid_columnconfigure(0, weight=1)
+    def configurar_grade(self):
+        self.mestre.grid_rowconfigure(0, weight=1)
+        self.mestre.grid_columnconfigure(0, weight=1)
 
-    def create_widgets(self):
-        main_frame = tk.Frame(self.master)
-        main_frame.grid(row=0, column=0, sticky='nsew')
+    def criar_widgets(self):
+        frame_principal = tk.Frame(self.mestre)
+        frame_principal.grid(row=0, column=0, sticky='nsew')
 
-        main_frame.grid_rowconfigure(3, weight=1)
-        main_frame.grid_columnconfigure(0, weight=1)
+        frame_principal.grid_rowconfigure(3, weight=1)
+        frame_principal.grid_columnconfigure(0, weight=1)
 
-        pad_options = {'padx': 10, 'pady': 10}
-        btn_style = {
+        opcoes_preenchimento = {'padx': 10, 'pady': 10}
+        estilo_botao = {
             'width': 20,
             'height': 2
         }
 
-        tk.Button(main_frame, text="Métodos Básicos",
-                  command=self.open_basic_methods, **btn_style).grid(
-            row=0, column=0, **pad_options)
+        tk.Button(frame_principal, text="Métodos Básicos",
+                  command=self.abrir_janela_metodos_basicos, **estilo_botao).grid(
+            row=0, column=0, **opcoes_preenchimento)
 
-        tk.Button(main_frame, text="Algoritmos Genéticos",
-                  state=tk.DISABLED, **btn_style).grid(
-            row=1, column=0, **pad_options)
+        tk.Button(frame_principal, text="Algoritmos Genéticos",
+                  state=tk.DISABLED, **estilo_botao).grid(
+            row=1, column=0, **opcoes_preenchimento)
 
-        tk.Button(main_frame, text="Sobre o Sistema",
-                  command=self.show_about, **btn_style).grid(
-            row=2, column=0, **pad_options)
+        tk.Button(frame_principal, text="Sobre o Sistema",
+                  command=self.mostrar_sobre, **estilo_botao).grid(
+            row=2, column=0, **opcoes_preenchimento)
 
-    def open_basic_methods(self):
-        BasicMethodsWindow(tk.Toplevel(self.master))
+    def abrir_janela_metodos_basicos(self):
+        JanelaMetodosBasicos(tk.Toplevel(self.mestre))
 
-    def show_about(self):
-        about_text = """Aplicação do Problema do Caixeiro Viajante (PCV) na área de Logística e Transporte para a roteirização de entregas.
+    def mostrar_sobre(self):
+        texto_sobre = """Aplicação do Problema do Caixeiro Viajante (PCV) na área de Logística e Transporte para a roteirização de entregas.
 
 Algoritmos implementados:
-- Subida de Encosta [cite: 9]
-- Subida de Encosta Alterada [cite: 26]
-- Têmpera Simulada [cite: 41]
+- Subida de Encosta
+- Subida de Encosta Alterada
+- Têmpera Simulada
 
 Desenvolvido por:
 - Izaque Nogueira e Vinicius Cardoso"""
-        messagebox.showinfo("Sobre o Sistema", about_text)
+        messagebox.showinfo("Sobre o Sistema", texto_sobre)
 
 
-class BasicMethodsWindow:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Métodos de Otimização - PCV")
-        self.master.geometry("900x700")
-        self.master.minsize(800, 600)
+class JanelaMetodosBasicos:
+    def __init__(self, mestre):
+        self.mestre = mestre
+        self.mestre.title("Métodos de Otimização - PCV")
+        self.mestre.geometry("900x700")
+        self.mestre.minsize(800, 600)
 
-        self.problem_size = tk.StringVar()
-        self.distance_matrix = []
-        self.solution = []  # A solução inicial do problema gerado
-        self.current_distance = 0 # Distância da solução inicial do problema
+        self.tamanho_problema = tk.StringVar()
+        self.matriz_distancia = []
+        self.solucao_inicial = []
+        self.distancia_inicial = 0
 
-        self.create_widgets()
-        self.configure_grid()
+        self.criar_widgets()
+        self.configurar_grade()
+        
+        self.exibir_parametros_metodo()
 
-    def configure_grid(self):
-        self.master.grid_rowconfigure(3, weight=1)
+
+    def configurar_grade(self):
+        self.mestre.grid_rowconfigure(3, weight=1)
         for col in range(4):
-            self.master.grid_columnconfigure(col, weight=1)
+            self.mestre.grid_columnconfigure(col, weight=1)
 
-    def create_widgets(self):
-        pad_options = {'padx': 5, 'pady': 5}
-        entry_width = 15
+    def criar_widgets(self):
+        opcoes_preenchimento = {'padx': 5, 'pady': 5}
+        largura_entrada = 15
 
-        config_frame = tk.LabelFrame(
-            self.master, text="Configuração do Problema")
-        config_frame.grid(row=0, columnspan=4, sticky='ew', **pad_options)
+        frame_config = tk.LabelFrame(
+            self.mestre, text="Configuração do Problema")
+        frame_config.grid(row=0, columnspan=4, sticky='ew', **opcoes_preenchimento)
 
-        tk.Label(config_frame, text="Tamanho do Problema (N cidades):").grid(
-            row=0, column=0, sticky='e', **pad_options)
+        tk.Label(frame_config, text="Tamanho do Problema (N cidades):").grid(
+            row=0, column=0, sticky='e', **opcoes_preenchimento)
 
-        tk.Entry(config_frame, textvariable=self.problem_size,
-                 width=entry_width).grid(row=0, column=1, sticky='ew', **pad_options)
+        tk.Entry(frame_config, textvariable=self.tamanho_problema,
+                 width=largura_entrada).grid(row=0, column=1, sticky='ew', **opcoes_preenchimento)
 
-        tk.Button(config_frame, text="Usar Padrão (5)",
-                  command=lambda: self.problem_size.set("5")).grid(
-            row=0, column=2, sticky='w', **pad_options)
+        tk.Button(frame_config, text="Usar Padrão (5)",
+                  command=lambda: self.tamanho_problema.set("5")).grid(
+            row=0, column=2, sticky='w', **opcoes_preenchimento)
 
-        tk.Button(config_frame, text="Gerar Problema",
-                  command=self.gerarProblema, bg='lightblue').grid(
-            row=0, column=3, sticky='ew', **pad_options)
+        tk.Button(frame_config, text="Gerar Problema",
+                  command=self.gerar_problema, bg='lightblue').grid(
+            row=0, column=3, sticky='ew', **opcoes_preenchimento)
 
-        matrix_frame = tk.LabelFrame(self.master, text="Matriz de Adjacência")
-        matrix_frame.grid(row=1, columnspan=4, sticky='ew', **pad_options)
+        frame_matriz = tk.LabelFrame(self.mestre, text="Matriz de Adjacência")
+        frame_matriz.grid(row=1, columnspan=4, sticky='ew', **opcoes_preenchimento)
 
-        self.matrix_text = tk.Text(matrix_frame, height=8, wrap=tk.NONE)
-        matrix_scrollbar_v = tk.Scrollbar(matrix_frame, orient=tk.VERTICAL,
-                                          command=self.matrix_text.yview)
-        matrix_scrollbar_h = tk.Scrollbar(matrix_frame, orient=tk.HORIZONTAL,
-                                          command=self.matrix_text.xview)
+        self.texto_matriz = tk.Text(frame_matriz, height=8, wrap=tk.NONE)
+        barra_rolagem_matriz_v = tk.Scrollbar(frame_matriz, orient=tk.VERTICAL,
+                                          command=self.texto_matriz.yview)
+        barra_rolagem_matriz_h = tk.Scrollbar(frame_matriz, orient=tk.HORIZONTAL,
+                                          command=self.texto_matriz.xview)
 
-        self.matrix_text.configure(yscrollcommand=matrix_scrollbar_v.set,
-                                   xscrollcommand=matrix_scrollbar_h.set)
+        self.texto_matriz.configure(yscrollcommand=barra_rolagem_matriz_v.set,
+                                   xscrollcommand=barra_rolagem_matriz_h.set)
 
-        self.matrix_text.grid(row=0, column=0, sticky='nsew')
-        matrix_scrollbar_v.grid(row=0, column=1, sticky='ns')
-        matrix_scrollbar_h.grid(row=1, column=0, sticky='ew')
+        self.texto_matriz.grid(row=0, column=0, sticky='nsew')
+        barra_rolagem_matriz_v.grid(row=0, column=1, sticky='ns')
+        barra_rolagem_matriz_h.grid(row=1, column=0, sticky='ew')
 
-        matrix_frame.grid_rowconfigure(0, weight=1)
-        matrix_frame.grid_columnconfigure(0, weight=1)
+        frame_matriz.grid_rowconfigure(0, weight=1)
+        frame_matriz.grid_columnconfigure(0, weight=1)
 
-        methods_frame = tk.LabelFrame(
-            self.master, text="Métodos de Otimização")
-        methods_frame.grid(row=2, columnspan=4, sticky='ew', **pad_options)
+        frame_metodos = tk.LabelFrame(
+            self.mestre, text="Métodos de Otimização")
+        frame_metodos.grid(row=2, columnspan=4, sticky='ew', **opcoes_preenchimento)
 
-        methods = ["Subida de Encosta",
-                   "Subida de Encosta Alterada", "Têmpera Simulada"]
-        self.method_var = tk.StringVar(value=methods[0])
+        metodos = ["Subida de Encosta",
+                   "Subida de Encosta Alterada", "Têmpera Simulada", "Todos"]
+        self.variavel_metodo = tk.StringVar(value=metodos[0])
+        self.variavel_metodo.trace_add("write", lambda *args: self.exibir_parametros_metodo())
 
-        self.method_menu = tk.OptionMenu(
-            methods_frame, self.method_var, *methods)
-        self.method_menu.grid(row=0, column=0, sticky='ew', **pad_options)
-        self.method_menu.configure(state=tk.DISABLED)
+        self.menu_metodo = tk.OptionMenu(
+            frame_metodos, self.variavel_metodo, *metodos)
+        self.menu_metodo.grid(row=0, column=0, sticky='ew', **opcoes_preenchimento)
+        self.menu_metodo.configure(state=tk.DISABLED)
 
-        self.execute_btn = tk.Button(methods_frame, text="Executar Método",
-                                     command=self.execute_method, state=tk.DISABLED,
+        self.botao_executar = tk.Button(frame_metodos, text="Executar Método",
+                                     command=self.executar_metodo, state=tk.DISABLED,
                                      bg='lightgreen')
-        self.execute_btn.grid(row=0, column=1, sticky='ew', **pad_options)
+        self.botao_executar.grid(row=0, column=1, sticky='ew', **opcoes_preenchimento)
 
-        tk.Label(methods_frame, text="Max Tentativas Sem Melhoria (t_max):").grid(
-            row=0, column=2, sticky='e', **pad_options)
+        frame_metodos.grid_columnconfigure(1, weight=1)
 
-        self.max_attempts_var = tk.StringVar(value="100") # Default t_max para Subida de Encosta Alterada
-        tk.Entry(methods_frame, textvariable=self.max_attempts_var, width=10).grid(
-            row=0, column=3, sticky='w', **pad_options)
+        self.frame_parametros_hc_mod = tk.Frame(frame_metodos)
+        tk.Label(self.frame_parametros_hc_mod, text="Max Tentativas Sem Melhoria (t_max):").grid(
+            row=0, column=0, sticky='e', **opcoes_preenchimento)
+        self.var_max_tentativas = tk.StringVar(value="100")
+        tk.Entry(self.frame_parametros_hc_mod, textvariable=self.var_max_tentativas, width=10).grid(
+            row=0, column=1, sticky='w', **opcoes_preenchimento)
+        
+        self.frame_parametros_ts = tk.Frame(frame_metodos)
+        tk.Label(self.frame_parametros_ts, text="Temp. Inicial (Ti):").grid(
+            row=0, column=0, sticky='e', **opcoes_preenchimento)
+        self.var_temp_inicial = tk.StringVar(value="1000.0")
+        tk.Entry(self.frame_parametros_ts, textvariable=self.var_temp_inicial, width=10).grid(
+            row=0, column=1, sticky='w', **opcoes_preenchimento)
 
-        methods_frame.grid_columnconfigure(1, weight=1)
+        tk.Label(self.frame_parametros_ts, text="Temp. Final (Tf):").grid(
+            row=1, column=0, sticky='e', **opcoes_preenchimento)
+        self.var_temp_final = tk.StringVar(value="1.0")
+        tk.Entry(self.frame_parametros_ts, textvariable=self.var_temp_final, width=10).grid(
+            row=1, column=1, sticky='w', **opcoes_preenchimento)
 
-        results_frame = tk.LabelFrame(self.master, text="Resultados")
-        results_frame.grid(row=3, columnspan=4, sticky='nsew', **pad_options)
+        tk.Label(self.frame_parametros_ts, text="Taxa Resfriamento (Fr):").grid(
+            row=2, column=0, sticky='e', **opcoes_preenchimento)
+        self.var_taxa_resfriamento = tk.StringVar(value="0.995")
+        tk.Entry(self.frame_parametros_ts, textvariable=self.var_taxa_resfriamento, width=10).grid(
+            row=2, column=1, sticky='w', **opcoes_preenchimento)
 
-        self.results_text = tk.Text(results_frame, wrap=tk.WORD)
-        results_scrollbar = tk.Scrollbar(
-            results_frame, command=self.results_text.yview)
 
-        self.results_text.grid(row=0, column=0, sticky='nsew')
-        results_scrollbar.grid(row=0, column=1, sticky='ns')
-        self.results_text.config(yscrollcommand=results_scrollbar.set)
+        frame_resultados = tk.LabelFrame(self.mestre, text="Resultados")
+        frame_resultados.grid(row=3, columnspan=4, sticky='nsew', **opcoes_preenchimento)
 
-        results_frame.grid_rowconfigure(0, weight=1)
-        results_frame.grid_columnconfigure(0, weight=1)
+        self.texto_resultados = tk.Text(frame_resultados, wrap=tk.WORD)
+        barra_rolagem_resultados = tk.Scrollbar(
+            frame_resultados, command=self.texto_resultados.yview)
 
-    def gerarProblema(self):
-        """
-        Gera uma nova matriz de distâncias aleatórias para o problema do PCV e uma solução inicial.
-        """
+        self.texto_resultados.grid(row=0, column=0, sticky='nsew')
+        barra_rolagem_resultados.grid(row=0, column=1, sticky='ns')
+        self.texto_resultados.config(yscrollcommand=barra_rolagem_resultados.set)
+        
+        tk.Button(frame_resultados, text="Limpar Resultados",
+                  command=self.limpar_resultados, bg='lightcoral').grid(
+            row=1, column=0, columnspan=2, sticky='ew', **opcoes_preenchimento)
+
+        frame_resultados.grid_rowconfigure(0, weight=1)
+        frame_resultados.grid_columnconfigure(0, weight=1)
+
+    def exibir_parametros_metodo(self):
+        self.frame_parametros_hc_mod.grid_forget()
+        self.frame_parametros_ts.grid_forget()
+
+        metodo_selecionado = self.variavel_metodo.get()
+
+        if metodo_selecionado == "Subida de Encosta Alterada":
+            self.frame_parametros_hc_mod.grid(row=1, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
+        elif metodo_selecionado == "Têmpera Simulada":
+            self.frame_parametros_ts.grid(row=1, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
+        elif metodo_selecionado == "Todos":
+            self.frame_parametros_hc_mod.grid(row=1, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
+            self.frame_parametros_ts.grid(row=2, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
+
+
+    def limpar_resultados(self):
+        self.texto_resultados.delete(1.0, tk.END)
+
+    def gerar_problema(self):
         try:
-            size = int(self.problem_size.get() or 5)
-            if size < 3:
-                size = 3
-            elif size > 20: # Limite para demonstração
+            tamanho = int(self.tamanho_problema.get() or 5)
+            if tamanho < 3:
+                tamanho = 3
+            elif tamanho > 20:
                 messagebox.showinfo(
                     "Aviso", "Tamanho do problema limitado a 20 para esta demonstração.")
-                size = 20
-            self.problem_size.set(str(size))
+                tamanho = 20
+            self.tamanho_problema.set(str(tamanho))
         except ValueError:
-            size = 5
-            self.problem_size.set("5")
+            tamanho = 5
+            self.tamanho_problema.set("5")
 
-        self.distance_matrix = [[0 for _ in range(size)] for _ in range(size)]
+        self.matriz_distancia = [[0 for _ in range(tamanho)] for _ in range(tamanho)]
 
-        # Preenche a matriz de adjacência com distâncias aleatórias simétricas
-        for i in range(size):
-            for j in range(i + 1, size):
-                distance = random.randint(10, 100) # Distâncias entre 10 e 100
-                self.distance_matrix[i][j] = distance
-                self.distance_matrix[j][i] = distance # Garante simetria
+        for i in range(tamanho):
+            for j in range(i + 1, tamanho):
+                distancia = random.randint(10, 100)
+                self.matriz_distancia[i][j] = distancia
+                self.matriz_distancia[j][i] = distancia
 
-        # Gera uma solução inicial aleatória
-        self.solution = list(range(size))
-        random.shuffle(self.solution)
-        self.current_distance = self.calculate_total_distance(self.solution)
+        self.solucao_inicial = list(range(tamanho))
+        random.shuffle(self.solucao_inicial)
+        self.distancia_inicial = self.calcular_distancia_total(self.solucao_inicial)
 
-        self.display_matrix() # Exibe a matriz na interface
+        self.exibir_matriz()
 
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.insert(tk.END, "=" * 50 + "\n")
-        self.results_text.insert(tk.END, "PROBLEMA GERADO COM SUCESSO!\n")
-        self.results_text.insert(tk.END, "=" * 50 + "\n\n")
-        self.results_text.insert(tk.END, f"Número de cidades (N): {size}\n")
-        self.results_text.insert(
-            tk.END, f"Solução inicial gerada: {self.format_route(self.solution)}\n")
-        self.results_text.insert(
-            tk.END, f"Distância inicial da solução gerada: {self.current_distance}\n\n")
+        self.texto_resultados.delete(1.0, tk.END)
+        self.texto_resultados.insert(tk.END, "=" * 50 + "\n")
+        self.texto_resultados.insert(tk.END, "PROBLEMA GERADO COM SUCESSO!\n")
+        self.texto_resultados.insert(tk.END, "=" * 50 + "\n\n")
+        self.texto_resultados.insert(tk.END, f"Número de cidades (N): {tamanho}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Solução inicial gerada: {self.formatar_rota(self.solucao_inicial)}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Distância inicial da solução gerada: {self.distancia_inicial}\n\n")
 
-        self.method_menu.configure(state=tk.NORMAL)
-        self.execute_btn.configure(state=tk.NORMAL)
+        self.menu_metodo.configure(state=tk.NORMAL)
+        self.botao_executar.configure(state=tk.NORMAL)
 
-    def display_matrix(self):
-        """Exibe a matriz de adjacência no campo de texto."""
-        self.matrix_text.delete(1.0, tk.END)
-        size = len(self.distance_matrix)
+    def exibir_matriz(self):
+        self.texto_matriz.delete(1.0, tk.END)
+        tamanho = len(self.matriz_distancia)
 
-        # Formata o cabeçalho da matriz
-        header = "     "
-        for j in range(size):
-            header += f"{j:6d}" # Colunas com 6 espaços
-        self.matrix_text.insert(tk.END, header + "\n")
-        header_sep = "-----+" + "------"*size
-        self.matrix_text.insert(tk.END, header_sep + "\n")
+        cabecalho = "     "
+        for j in range(tamanho):
+            cabecalho += f"{j:6d}"
+        self.texto_matriz.insert(tk.END, cabecalho + "\n")
+        separador_cabecalho = "-----+" + "------"*tamanho
+        self.texto_matriz.insert(tk.END, separador_cabecalho + "\n")
 
-        # Insere os dados da matriz
-        for i in range(size):
-            line = f"{i:3d} |" # Linha com 3 espaços para o índice
-            for j in range(size):
+        for i in range(tamanho):
+            linha = f"{i:3d} |"
+            for j in range(tamanho):
                 if i == j:
-                    line += f"{'--':>6}" # "--" para a diagonal
+                    linha += f"{'--':>6}"
                 else:
-                    line += f"{self.distance_matrix[i][j]:6d}" # Distância com 6 espaços
-            self.matrix_text.insert(tk.END, line + "\n")
+                    linha += f"{self.matriz_distancia[i][j]:6d}"
+            self.texto_matriz.insert(tk.END, linha + "\n")
 
-    def calculate_total_distance(self, route):
-        """Calcula a distância total de uma rota no PCV."""
+    def calcular_distancia_total(self, rota):
         total = 0
-        size = len(route)
-        for i in range(size):
-            # Soma a distância entre a cidade atual e a próxima na rota
-            # O operador '%' garante que a última cidade volta para a primeira
-            total += self.distance_matrix[route[i]][route[(i + 1) % size]]
+        tamanho = len(rota)
+        for i in range(tamanho):
+            total += self.matriz_distancia[rota[i]][rota[(i + 1) % tamanho]]
         return total
 
-    def format_route(self, route):
-        """Formata uma rota para exibição, incluindo o retorno à cidade inicial."""
-        if not route:
+    def formatar_rota(self, rota):
+        if not rota:
             return "N/A"
-        return " -> ".join(map(str, route)) + f" -> {route[0]}"
+        return " -> ".join(map(str, rota)) + f" -> {rota[0]}"
 
-    def generate_neighbors_one_city_swap(self, route):
-        """
-        Gera vizinhos trocando uma cidade escolhida aleatoriamente com todas as outras.
-        Esta é a função sucessora para Subida de Encosta e Subida de Encosta Alterada,
-        conforme descrito nos slides[cite: 20].
-        """
-        n = len(route)
+    def gerar_vizinho_troca_uma_cidade(self, rota):
+        n = len(rota)
         if n <= 1:
-            return -1, []  # Retorna índice inválido e lista vazia
+            return -1, []
         
-        # Escolhe uma cidade aleatória para ser o pivô da troca [cite: 20]
         i = random.randint(0, n-1)
-        neighbors = []
+        vizinhos = []
         for j in range(n):
-            if j == i: # Não troca a cidade com ela mesma
+            if j == i:
                 continue
-            neighbor = route.copy()
-            neighbor[i], neighbor[j] = neighbor[j], neighbor[i]  # Realiza a troca
-            neighbors.append(neighbor)
-        return i, neighbors # Retorna o índice da cidade pivot e a lista de vizinhos gerados
+            vizinho = rota.copy()
+            vizinho[i], vizinho[j] = vizinho[j], vizinho[i]
+            vizinhos.append(vizinho)
+        return i, vizinhos
 
-    def generate_neighbors_random_swap(self, route):
-        """
-        Gera um único vizinho trocando duas cidades aleatórias.
-        Esta é a função sucessora para Têmpera Simulada[cite: 49].
-        """
-        if len(route) < 2:
-            return route.copy()
+    def gerar_vizinho_troca_aleatoria(self, rota):
+        if len(rota) < 2:
+            return rota.copy()
         
-        neighbor = route.copy()
-        # Seleciona duas posições aleatórias distintas para troca
-        i, j = random.sample(range(len(neighbor)), 2)
-        neighbor[i], neighbor[j] = neighbor[j], neighbor[i]
-        return neighbor
+        vizinho = rota.copy()
+        i, j = random.sample(range(len(vizinho)), 2)
+        vizinho[i], vizinho[j] = vizinho[j], vizinho[i]
+        return vizinho
 
-    def execute_method(self):
-        """Executa o método de otimização selecionado."""
-        if not self.distance_matrix:
+    def executar_metodo(self):
+        if not self.matriz_distancia:
             messagebox.showwarning("Aviso", "Gere um problema primeiro!")
             return
 
-        method = self.method_var.get()
+        metodo = self.variavel_metodo.get()
 
-        # Limpa e insere cabeçalho para os resultados do método
-        self.results_text.insert(tk.END, "\n" + "=" * 50 + "\n")
-        self.results_text.insert(tk.END, f"EXECUTANDO: {method.upper()}\n")
-        self.results_text.insert(tk.END, "=" * 50 + "\n\n")
+        self.texto_resultados.insert(tk.END, "\n" + "=" * 50 + "\n")
+        self.texto_resultados.insert(tk.END, f"EXECUTANDO: {metodo.upper()}\n")
+        self.texto_resultados.insert(tk.END, "=" * 50 + "\n\n")
 
-        # Chama o método de otimização apropriado
-        if method == "Subida de Encosta":
-            self.hill_climbing()
-        elif method == "Subida de Encosta Alterada":
-            self.hill_climbing_modified()
-        elif method == "Têmpera Simulada":
-            self.simulated_annealing()
+        if metodo == "Subida de Encosta":
+            self.subida_encosta()
+        elif metodo == "Subida de Encosta Alterada":
+            self.subida_encosta_alterada()
+        elif metodo == "Têmpera Simulada":
+            self.tempera_simulada()
+        elif metodo == "Todos":
+            self.executar_todos_metodos()
 
-    def hill_climbing(self):
-        """
-        Implementa o algoritmo de Subida de Encosta (Hill Climbing).
-        Busca o melhor vizinho e move-se para ele se for melhor; para se não houver melhoria[cite: 16].
-        """
-        # A solução inicial para esta execução do algoritmo é uma cópia da solução gerada
-        current_solution = self.solution[:]
-        current_distance = self.calculate_total_distance(current_solution)
-        iteration = 0
+    def subida_encosta(self):
+        solucao_atual = self.solucao_inicial[:]
+        distancia_atual = self.calcular_distancia_total(solucao_atual)
+        iteracao = 0
 
-        self.results_text.insert(
-            tk.END, f"Solução inicial (para esta execução de HC): {self.format_route(current_solution)}\n")
-        self.results_text.insert(
-            tk.END, f"Distância inicial (para esta execução de HC): {current_distance}\n\n")
+        self.texto_resultados.insert(
+            tk.END, f"Solução inicial (para esta execução de Subida de Encosta): {self.formatar_rota(solucao_atual)}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Distância inicial (para esta execução de Subida de Encosta): {distancia_atual}\n\n")
 
         while True:
-            iteration += 1
-            # Gera vizinhos trocando uma cidade aleatória com as demais [cite: 20]
-            i_pivot, neighbors = self.generate_neighbors_one_city_swap(current_solution)
+            iteracao += 1
+            self.texto_resultados.insert(tk.END, f"Iteração {iteracao}:\n")
+            self.texto_resultados.insert(tk.END, f"  Solução Atual: {self.formatar_rota(solucao_atual)}\n")
+            self.texto_resultados.insert(tk.END, f"  Distância Atual: {distancia_atual}\n")
             
-            best_neighbor = None
-            best_distance = current_distance # Inicializa com a distância da solução atual
+            indice_pivo, vizinhos = self.gerar_vizinho_troca_uma_cidade(solucao_atual)
             
-            # Itera sobre os vizinhos para encontrar o melhor
-            for neighbor in neighbors:
-                distance = self.calculate_total_distance(neighbor)
-                if distance < best_distance: # Se encontrar um vizinho melhor
-                    best_neighbor = neighbor
-                    best_distance = distance
+            melhor_vizinho_encontrado_na_iteracao = None
+            melhor_distancia_na_iteracao = distancia_atual
             
-            if best_neighbor is None:
-                # Se nenhum vizinho melhor foi encontrado, atingiu um ótimo local [cite: 16]
-                self.results_text.insert(
-                    tk.END, f"Iteração {iteration}: Nenhum vizinho melhor encontrado. Ótimo local atingido.\n")
-                break # Sai do loop
+            for vizinho in vizinhos:
+                distancia = self.calcular_distancia_total(vizinho)
+                if distancia < melhor_distancia_na_iteracao:
+                    melhor_vizinho_encontrado_na_iteracao = vizinho
+                    melhor_distancia_na_iteracao = distancia
+            
+            if melhor_vizinho_encontrado_na_iteracao is None:
+                self.texto_resultados.insert(
+                    tk.END, f"  Resultado: Nenhum vizinho melhor encontrado. Ótimo local atingido.\n")
+                self.texto_resultados.insert(tk.END, "-" * 40 + "\n")
+                break
                 
-            # Move para o melhor vizinho encontrado
-            current_solution = best_neighbor
-            current_distance = best_distance
+            solucao_atual = melhor_vizinho_encontrado_na_iteracao
+            distancia_atual = melhor_distancia_na_iteracao
 
-            self.results_text.insert(
-                tk.END, f"Iteração {iteration}: Nova solução encontrada. Distância = {current_distance}\n")
-            self.results_text.see(tk.END) # Garante que o texto seja visível
-            self.master.update() # Atualiza a interface
+            self.texto_resultados.insert(
+                tk.END, f"  Resultado: Melhoria encontrada! Nova distância: {distancia_atual}\n")
+            self.texto_resultados.insert(tk.END, "-" * 40 + "\n")
+            self.texto_resultados.see(tk.END)
+            self.mestre.update()
 
-        self.results_text.insert(
+        self.texto_resultados.insert(
             tk.END, f"\nSOLUÇÃO FINAL (Subida de Encosta):\n")
-        self.results_text.insert(
-            tk.END, f"Rota: {self.format_route(current_solution)}\n")
-        self.results_text.insert(tk.END, f"Distância: {current_distance}\n")
-        self.results_text.insert(tk.END, f"Iterações totais: {iteration}\n")
-        # Calcula a melhoria em relação à solução inicial do PROBLEMA
-        self.results_text.insert(
-            tk.END, f"Melhoria sobre a solução inicial do problema: {self.current_distance - current_distance}\n\n")
+        self.texto_resultados.insert(
+            tk.END, f"Rota: {self.formatar_rota(solucao_atual)}\n")
+        self.texto_resultados.insert(tk.END, f"Distância: {distancia_atual}\n")
+        self.texto_resultados.insert(tk.END, f"Iterações totais: {iteracao}\n")
+        melhoria = self.distancia_inicial - distancia_atual
+        self.texto_resultados.insert(
+            tk.END, f"Melhoria sobre a solução inicial do problema ({self.distancia_inicial}): {melhoria}\n\n")
+        return distancia_atual, solucao_atual
 
-    def hill_climbing_modified(self):
-        """
-        Implementa o algoritmo de Subida de Encosta Alterada.
-        Permite um número máximo de passos (t_max) sem melhoria antes de parar[cite: 26].
-        """
+    def subida_encosta_alterada(self):
         try:
-            t_max = int(self.max_attempts_var.get())
+            t_max = int(self.var_max_tentativas.get())
+            if t_max <= 0:
+                self.texto_resultados.insert(tk.END, "AVISO: t_max inválido, usando valor padrão 1.\n")
+                t_max = 1
         except ValueError:
-            t_max = 100 # Valor padrão se a entrada for inválida
+            self.texto_resultados.insert(tk.END, "AVISO: Erro ao ler t_max, usando valor padrão 100.\n")
+            t_max = 100
         
-        current_solution = self.solution[:]
-        current_distance = self.calculate_total_distance(current_solution)
-        t = 0  # Contador de tentativas sem melhoria [cite: 26]
-        iteration = 0
+        atual = self.solucao_inicial[:]
+        va = self.calcular_distancia_total(atual)
 
-        self.results_text.insert(
+        t = 1
+        iteracao = 0
+
+        self.texto_resultados.insert(
+            tk.END, f"Executando Subida Alterada:\n")
+        self.texto_resultados.insert(
             tk.END, f"Máximo de passos sem melhoria (t_max): {t_max}\n")
-        self.results_text.insert(
-            tk.END, f"Solução inicial (para esta execução de HC Alterada): {self.format_route(current_solution)}\n")
-        self.results_text.insert(
-            tk.END, f"Distância inicial (para esta execução de HC Alterada): {current_distance}\n\n")
+        self.texto_resultados.insert(
+            tk.END, f"Solução inicial para o algoritmo: {self.formatar_rota(atual)}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Distância inicial para o algoritmo (VA): {va}\n\n")
+
+        def avalia_um_vizinho(solucao_corrente):
+            novo_vizinho = self.gerar_vizinho_troca_aleatoria(solucao_corrente)
+            valor_novo_vizinho = self.calcular_distancia_total(novo_vizinho)
+            return novo_vizinho, valor_novo_vizinho
 
         while True:
-            iteration += 1
-            # Gera vizinhos conforme a função sucessora [cite: 30]
-            i_pivot, neighbors = self.generate_neighbors_one_city_swap(current_solution)
+            iteracao += 1
             
-            best_neighbor = None
-            best_distance = float('inf') # Inicializa com infinito para encontrar o menor vizinho
-            
-            # Encontra o melhor vizinho (mesmo que seja pior que o atual)
-            for neighbor in neighbors:
-                distance = self.calculate_total_distance(neighbor)
-                if distance < best_distance:
-                    best_neighbor = neighbor
-                    best_distance = distance
-            
-            self.results_text.insert(
-                tk.END, f"Iteração {iteration}: Melhor vizinho encontrado tem distância {best_distance} (Atual: {current_distance}). ")
+            self.texto_resultados.insert(tk.END, f"Iteração {iteracao}:\n")
+            self.texto_resultados.insert(tk.END, f"  Contador T (etapas sem melhoria): {t} (VA atual: {va})\n")
 
-            if best_distance < current_distance:
-                # Melhoria encontrada: move para o vizinho e reseta o contador 't' [cite: 26]
-                current_solution = best_neighbor
-                current_distance = best_distance
-                t = 0
-                self.results_text.insert(
-                    tk.END, f"Melhoria encontrada! Nova distância: {current_distance}. Contador 't' resetado para 0.\n")
-            else:
-                # Sem melhoria: incrementa o contador 't' [cite: 26]
+            novo, vn = avalia_um_vizinho(atual)
+
+            self.texto_resultados.insert(tk.END, f"  Vizinho Gerado: Distância={vn}. {self.formatar_rota(novo)}\n")
+
+            if vn >= va:
                 t += 1
-                self.results_text.insert(
-                    tk.END, f"Sem melhoria. Contador 't' incrementado para {t}.\n")
+                self.texto_resultados.insert(
+                    tk.END, f"  Resultado: Sem melhoria ou pior (VN >= VA). T incrementado para {t}.\n")
+                
                 if t > t_max:
-                    # Limite de 't_max' atingido, para o algoritmo [cite: 26]
-                    self.results_text.insert(
-                        tk.END, f"  Limite de t_max ({t_max}) passos sem melhoria atingido. Parando.\n")
+                    self.texto_resultados.insert(
+                        tk.END, f"  CONDIÇÃO DE PARADA: T ({t}) > t_max ({t_max}). Algoritmo encerrado.\n")
+                    self.texto_resultados.insert(tk.END, "-" * 40 + "\n")
                     break
+            else:
+                atual = novo
+                va = vn
+                t = 1
+                self.texto_resultados.insert(
+                    tk.END, f"  Resultado: Melhoria encontrada (VN < VA)!\n")
+                self.texto_resultados.insert(
+                    tk.END, f"    Nova Solução Atual: {self.formatar_rota(atual)}\n")
+                self.texto_resultados.insert(
+                    tk.END, f"    Novo Valor Atual (VA): {va}\n")
+                self.texto_resultados.insert(
+                    tk.END, f"    Contador T resetado para 1.\n")
+            
+            self.texto_resultados.insert(tk.END, "-" * 40 + "\n")
+            self.texto_resultados.see(tk.END)
+            self.mestre.update()
 
-            self.results_text.see(tk.END)
-            self.master.update()
+            if iteracao >= 100000 and t_max > 200:
+                self.texto_resultados.insert(tk.END, f"Parada de segurança: Número máximo de iterações ({iteracao}) atingido.\n")
+                break
+        
+        self.texto_resultados.insert(
+            tk.END, f"\nSOLUÇÃO FINAL:\n")
+        self.texto_resultados.insert(
+            tk.END, f"Rota Final: {self.formatar_rota(atual)}\n")
+        self.texto_resultados.insert(tk.END, f"Distância Final: {va}\n")
+        self.texto_resultados.insert(tk.END, f"Iterações Totais: {iteracao}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Valor final do contador T: {t}\n")
+        melhoria = self.distancia_inicial - va
+        self.texto_resultados.insert(
+            tk.END, f"Melhoria sobre a solução inicial do problema ({self.distancia_inicial}): {melhoria}\n\n")
+        return va, atual
 
-        self.results_text.insert(
-            tk.END, f"\nSOLUÇÃO FINAL (Subida de Encosta Alterada):\n")
-        self.results_text.insert(
-            tk.END, f"Rota: {self.format_route(current_solution)}\n")
-        self.results_text.insert(tk.END, f"Distância: {current_distance}\n")
-        self.results_text.insert(tk.END, f"Iterações totais: {iteration}\n")
-        self.results_text.insert(
-            tk.END, f"Passos sem melhoria no final (t): {t}\n")
-        self.results_text.insert(
-            tk.END, f"Melhoria sobre a solução inicial do problema: {self.current_distance - current_distance}\n\n")
+    def tempera_simulada(self):
+        try:
+            temp_inicial = float(self.var_temp_inicial.get())
+            temp_final = float(self.var_temp_final.get())
+            taxa_resfriamento = float(self.var_taxa_resfriamento.get())
+        except ValueError:
+            messagebox.showwarning("Erro de Parâmetros", "Por favor, insira valores numéricos válidos para os parâmetros da Têmpera Simulada.")
+            return None, None
+            
+        max_iteracoes = 10000
 
-    def simulated_annealing(self):
-        """
-        Implementa o algoritmo de Têmpera Simulada (Simulated Annealing).
-        Combina busca local com movimentos aleatórios para escapar de mínimos locais[cite: 41, 43].
-        """
-        current_solution = self.solution[:]
-        current_distance = self.calculate_total_distance(current_solution)
+        solucao_atual = self.solucao_inicial[:]
+        distancia_atual = self.calcular_distancia_total(solucao_atual)
 
-        best_solution = current_solution[:] # Mantém a melhor solução global encontrada
-        best_distance = current_distance
+        melhor_solucao = solucao_atual[:]
+        melhor_distancia = distancia_atual
 
-        # Parâmetros de Têmpera Simulada. Ajuste conforme necessidade [cite: 43]
-        initial_temp = 1000.0
-        final_temp = 1.0
-        cooling_rate = 0.995 # Fator de redução da temperatura [cite: 46]
-        max_iterations = 10000 # Limite para evitar loops infinitos ou muito longos
+        temperatura = temp_inicial
+        iteracao = 0
+        movimentos_aceitos = 0
 
-        temperature = initial_temp
-        iteration = 0
-        accepted_moves = 0 # Contador de movimentos aceitos (incluindo piores)
+        self.texto_resultados.insert(tk.END, f"Parâmetros da Têmpera Simulada:\n")
+        self.texto_resultados.insert(
+            tk.END, f"Temperatura inicial: {temp_inicial:.2f}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Temperatura final (critério de parada aprox.): {temp_final:.2f}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Taxa de resfriamento (cooling_rate): {taxa_resfriamento}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Máximo de iterações: {max_iteracoes}\n\n")
 
-        self.results_text.insert(tk.END, f"Parâmetros da Têmpera Simulada:\n")
-        self.results_text.insert(
-            tk.END, f"Temperatura inicial: {initial_temp:.2f}\n")
-        self.results_text.insert(
-            tk.END, f"Temperatura final (critério de parada aprox.): {final_temp:.2f}\n")
-        self.results_text.insert(
-            tk.END, f"Taxa de resfriamento (cooling_rate): {cooling_rate}\n")
-        self.results_text.insert(
-            tk.END, f"Máximo de iterações: {max_iterations}\n\n")
+        self.texto_resultados.insert(
+            tk.END, f"Solução inicial (para esta execução de TS): {self.formatar_rota(solucao_atual)}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Distância inicial (para esta execução de TS): {distancia_atual}\n\n")
 
-        self.results_text.insert(
-            tk.END, f"Solução inicial (para esta execução de TS): {self.format_route(current_solution)}\n")
-        self.results_text.insert(
-            tk.END, f"Distância inicial (para esta execução de TS): {current_distance}\n\n")
+        while temperatura > temp_final and iteracao < max_iteracoes:
+            iteracao += 1
 
-        # Loop principal do algoritmo: enquanto a temperatura não atinge o mínimo e não excedeu as iterações
-        while temperature > final_temp and iteration < max_iterations:
-            iteration += 1
+            self.texto_resultados.insert(tk.END, f"Iteração {iteracao}:\n")
+            self.texto_resultados.insert(tk.END, f"  Temperatura Atual: {temperatura:.2f}\n")
+            self.texto_resultados.insert(tk.END, f"  Solução Atual: {self.formatar_rota(solucao_atual)}\n")
+            self.texto_resultados.insert(tk.END, f"  Distância Atual: {distancia_atual}\n")
 
-            # Gera um vizinho aleatório (trocando duas cidades) [cite: 49]
-            neighbor = self.generate_neighbors_random_swap(current_solution)
-            neighbor_distance = self.calculate_total_distance(neighbor)
 
-            delta_energy = neighbor_distance - current_distance # Custo do novo estado - Custo do estado atual
+            vizinho = self.gerar_vizinho_troca_aleatoria(solucao_atual)
+            distancia_vizinho = self.calcular_distancia_total(vizinho)
 
-            # Condição de aceitação:
-            if delta_energy < 0: # Se o vizinho é melhor
-                current_solution = neighbor
-                current_distance = neighbor_distance
-                accepted_moves += 1
-                if current_distance < best_distance: # Atualiza a melhor solução global se for o caso
-                    best_solution = current_solution[:]
-                    best_distance = current_distance
-            else: # Se o vizinho é pior (delta_energy >= 0)
-                # Calcula a probabilidade de aceitar um movimento pior [cite: 45]
-                if temperature > 1e-9: # Evita divisão por zero ou números muito pequenos
-                    acceptance_probability = math.exp(-delta_energy / temperature)
-                    if random.random() < acceptance_probability:
-                        current_solution = neighbor
-                        current_distance = neighbor_distance
-                        accepted_moves += 1
+            delta_energia = distancia_vizinho - distancia_atual
+            self.texto_resultados.insert(tk.END, f"  Vizinho Gerado: Distância={distancia_vizinho}. {self.formatar_rota(vizinho)}\n")
+            self.texto_resultados.insert(tk.END, f"  Delta Energia (Vizinho - Atual): {delta_energia:.2f}\n")
 
-            temperature *= cooling_rate # Resfria a temperatura [cite: 46]
 
-            # Feedback periódico na interface
-            if iteration % 500 == 0 or iteration == 1: # Mostra a cada 500 iterações e na primeira
-                self.results_text.insert(tk.END, f"Iter {iteration}: Temp={temperature:.2f}, "
-                                         f"AtualDist={current_distance}, MelhorDistEncontrada={best_distance}\n")
-                self.results_text.see(tk.END)
-                self.master.update()
+            if delta_energia < 0:
+                solucao_atual = vizinho
+                distancia_atual = distancia_vizinho
+                movimentos_aceitos += 1
+                if distancia_atual < melhor_distancia:
+                    melhor_solucao = solucao_atual[:]
+                    melhor_distancia = distancia_atual
+                self.texto_resultados.insert(tk.END, f"  Resultado: Melhoria encontrada! Movimento aceito.\n")
+            else:
+                if temperatura > 1e-9:
+                    probabilidade_aceitacao = math.exp(-delta_energia / temperatura)
+                    self.texto_resultados.insert(tk.END, f"  Probabilidade de Aceitação (movimento pior): {probabilidade_aceitacao:.4f}\n")
+                    if random.random() < probabilidade_aceitacao:
+                        solucao_atual = vizinho
+                        distancia_atual = distancia_vizinho
+                        movimentos_aceitos += 1
+                        self.texto_resultados.insert(tk.END, f"  Resultado: Movimento pior aceito por probabilidade.\n")
+                    else:
+                        self.texto_resultados.insert(tk.END, f"  Resultado: Movimento pior rejeitado.\n")
+                else:
+                    self.texto_resultados.insert(tk.END, f"  Resultado: Movimento pior rejeitado (temperatura muito baixa).\n")
 
-        # Calcula a taxa de aceitação de movimentos
-        acceptance_rate = (accepted_moves / iteration) * 100 if iteration > 0 else 0
 
-        self.results_text.insert(
+            temperatura *= taxa_resfriamento
+            self.texto_resultados.insert(tk.END, f"  Nova Temperatura: {temperatura:.2f}\n")
+            self.texto_resultados.insert(tk.END, f"  Melhor Distância Encontrada até agora: {melhor_distancia}\n")
+            self.texto_resultados.insert(tk.END, "-" * 40 + "\n")
+            self.texto_resultados.see(tk.END)
+            self.mestre.update()
+
+        taxa_aceitacao = (movimentos_aceitos / iteracao) * 100 if iteracao > 0 else 0
+
+        self.texto_resultados.insert(
             tk.END, f"\nSOLUÇÃO FINAL (Têmpera Simulada):\n")
-        self.results_text.insert(
-            tk.END, f"Rota: {self.format_route(best_solution)}\n")
-        self.results_text.insert(tk.END, f"Distância: {best_distance}\n")
-        self.results_text.insert(tk.END, f"Iterações totais: {iteration}\n")
-        self.results_text.insert(
-            tk.END, f"Movimentos aceitos (incl. piores): {accepted_moves} ({acceptance_rate:.1f}%)\n")
-        self.results_text.insert(
-            tk.END, f"Temperatura final atingida: {temperature:.2f}\n")
-        self.results_text.insert(
-            tk.END, f"Melhoria sobre a solução inicial do problema: {self.current_distance - best_distance}\n\n")
+        self.texto_resultados.insert(
+            tk.END, f"Rota: {self.formatar_rota(melhor_solucao)}\n")
+        self.texto_resultados.insert(tk.END, f"Distância: {melhor_distancia}\n")
+        self.texto_resultados.insert(tk.END, f"Iterações totais: {iteracao}\n")
+        self.texto_resultados.insert(
+            tk.END, f"Movimentos aceitos (incl. piores): {movimentos_aceitos} ({taxa_aceitacao:.1f}%)\n")
+        self.texto_resultados.insert(
+            tk.END, f"Temperatura final atingida: {temperatura:.2f}\n")
+        melhoria = self.distancia_inicial - melhor_distancia
+        self.texto_resultados.insert(
+            tk.END, f"Melhoria sobre a solução inicial do problema ({self.distancia_inicial}): {melhoria}\n\n")
+        return melhor_distancia, melhor_solucao
+
+    def executar_todos_metodos(self):
+        self.texto_resultados.insert(tk.END, "====== EXECUTANDO TODOS OS MÉTODOS ======\n\n")
+        self.mestre.update()
+
+        resultados = {}
+
+        # Executa Subida de Encosta
+        self.texto_resultados.insert(tk.END, "--- INICIANDO: SUBIDA DE ENCOSTA ---\n")
+        dist_hc, rota_hc = self.subida_encosta()
+        resultados["Subida de Encosta"] = {"distancia": dist_hc, "rota": rota_hc}
+        self.texto_resultados.insert(tk.END, "--- SUBIDA DE ENCOSTA FINALIZADA ---\n\n")
+        self.mestre.update()
+
+        # Executa Subida de Encosta Alterada
+        self.texto_resultados.insert(tk.END, "--- INICIANDO: SUBIDA DE ENCOSTA ALTERADA ---\n")
+        dist_hca, rota_hca = self.subida_encosta_alterada()
+        resultados["Subida de Encosta Alterada"] = {"distancia": dist_hca, "rota": rota_hca}
+        self.texto_resultados.insert(tk.END, "--- SUBIDA DE ENCOSTA ALTERADA FINALIZADA ---\n\n")
+        self.mestre.update()
+
+        # Executa Têmpera Simulada
+        self.texto_resultados.insert(tk.END, "--- INICIANDO: TÊMPERA SIMULADA ---\n")
+        dist_ts, rota_ts = self.tempera_simulada()
+        resultados["Têmpera Simulada"] = {"distancia": dist_ts, "rota": rota_ts}
+        self.texto_resultados.insert(tk.END, "--- TÊMPERA SIMULADA FINALIZADA ---\n\n")
+        self.mestre.update()
+
+        self.texto_resultados.insert(tk.END, "====== RESUMO COMPARATIVO DOS MÉTODOS ======\n")
+        self.texto_resultados.insert(tk.END, f"Distância Inicial do Problema: {self.distancia_inicial}\n\n")
+
+        melhor_distancia_global = float('inf')
+        melhor_metodo_global = "Nenhum"
+
+        for nome_metodo, resultado in resultados.items():
+            distancia = resultado["distancia"]
+            rota = resultado["rota"]
+            melhoria = self.distancia_inicial - distancia if distancia is not None else "N/A"
+            
+            self.texto_resultados.insert(tk.END, f"Método: {nome_metodo}\n")
+            self.texto_resultados.insert(tk.END, f"  Distância Final: {distancia if distancia is not None else 'N/A'}\n")
+            self.texto_resultados.insert(tk.END, f"  Rota Final: {self.formatar_rota(rota) if rota is not None else 'N/A'}\n")
+            self.texto_resultados.insert(tk.END, f"  Melhoria sobre Inicial: {melhoria}\n\n")
+
+            if distancia is not None and distancia < melhor_distancia_global:
+                melhor_distancia_global = distancia
+                melhor_metodo_global = nome_metodo
+
+        self.texto_resultados.insert(tk.END, "------------------------------------------\n")
+        self.texto_resultados.insert(tk.END, f"MELHOR RESULTADO GLOBAL: {melhor_metodo_global}\n")
+        self.texto_resultados.insert(tk.END, f"COM DISTÂNCIA: {melhor_distancia_global}\n")
+        self.texto_resultados.insert(tk.END, "==========================================\n\n")
+        self.mestre.update()
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = MainApp(root)
-    root.mainloop()
+    raiz = tk.Tk()
+    app = AplicacaoPrincipal(raiz)
+    raiz.mainloop()
